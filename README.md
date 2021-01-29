@@ -1,4 +1,6 @@
 # hyperblob
+![Test on Node.js](https://github.com/andrewosh/hyperblobs/workflows/Test%20on%20Node.js/badge.svg)
+
 A simple blob store for Hypercore.
 
 Each blob is identified by its unique bounds within the Hypercore, e.g. `{ byteOffset: 0, blockOffset: 0, blockLength: 5, byteLength: 327680 }`, which makes them easy to save and retrieve:
