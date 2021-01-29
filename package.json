@@ -1,6 +1,6 @@
 {
   "name": "hyperblobs",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A blob store for Hypercore",
   "main": "index.js",
   "scripts": {
