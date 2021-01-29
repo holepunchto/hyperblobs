@@ -1,0 +1,33 @@
+{
+  "name": "hyperblobs",
+  "version": "0.0.0",
+  "description": "A blob store for Hypercore",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewosh/hyperblob.git"
+  },
+  "keywords": [
+    "hypercore",
+    "blob",
+    "store"
+  ],
+  "author": "Andrew Osheroff <andrewosh@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewosh/hyperblob/issues"
+  },
+  "homepage": "https://github.com/andrewosh/hyperblob#readme",
+  "dependencies": {
+    "hypercore-promisifier": "^1.1.0",
+    "hypercore-seekable-iterator": "^1.1.0",
+    "mutexify": "^1.3.1"
+  },
+  "devDependencies": {
+    "hypercore": "^9.7.0",
+    "random-access-memory": "^3.1.2"
+  }
+}
