@@ -22,7 +22,7 @@ await blobs.get(id, { start: 1, length: 2 }) // Buffer.from('el', 'utf-8')
 If the blob is large, there's a Streams interface (`createReadStream` and `createWriteStream`) too.
 
 ## Installation
-`npm i hyperblob`
+`npm i hyperblobs`
 
 ## API
 
