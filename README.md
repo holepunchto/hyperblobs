@@ -4,14 +4,16 @@ A simple blob store for Hypercore.
 Each blob is identified by its unique bounds within the Hypercore, e.g. `{ byteOffset: 0, blockOffset: 0, blockLength: 5, byteLength: 327680 }`, which makes them easy to save and retrieve:
 ```js
 const blobs = new Hyperblob(core)
-const id = await blobs.put(Buffer.from('hello world', 'utf-8')) // { byteOffset: 0, blockOffset: 0, blockLength: 1, byteLength: 11 }
+// ID is { byteOffset: 0, blockOffset: 0, blockLength: 1, byteLength: 11 }
+const id = await blobs.put(Buffer.from('hello world', 'utf-8')) 
 await blobs.get(id) // Buffer.from('hello world', 'utf-8')
 ```
 
 You can also get from start/end bounds within a single blob:
 ```js
 const blobs = new Hyperblob(core)
-const id = await blobs.put(Buffer.from('hello world', 'utf-8')) // { byteOffset: 0, blockOffset: 0, blockLength: 1, byteLength: 11 }
+// ID is { byteOffset: 0, blockOffset: 0, blockLength: 1, byteLength: 11 }
+const id = await blobs.put(Buffer.from('hello world', 'utf-8')) 
 await blobs.get(id, { start: 1, length: 2 }) // Buffer.from('el', 'utf-8')
 ```
 
