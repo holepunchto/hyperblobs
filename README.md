@@ -19,10 +19,10 @@ await blobs.get(id, { start: 1, length: 2 }) // Buffer.from('el', 'utf-8')
 
 If the blob is large, there's a Streams interface (`createReadStream` and `createWriteStream`) too.
 
-### Installation
+## Installation
 `npm i hyperblob`
 
-### API
+## API
 
 #### `const blobs = new Hyperblob(core, opts)`
 Create a new blob store wrapping a single Hypercore.
@@ -57,5 +57,5 @@ Create a Writable stream that will save a blob.
 
 The corresponding ID will be set on the stream at `stream.id`.
 
-### License
+## License
 MIT
