@@ -17,6 +17,10 @@ module.exports = class Hyperblobs {
     return this.core
   }
 
+  get locked () {
+    return this._lock.locked
+  }
+
   async put (blob, opts) {
     if (!Buffer.isBuffer(blob)) blob = Buffer.from(blob)
     const blockSize = (opts && opts.blockSize) || this.blockSize
