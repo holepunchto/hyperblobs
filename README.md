@@ -40,7 +40,7 @@ Options can include:
 ```
 
 #### `const id = await blobs.put(blob, opts)`
-Store a new blob. If the blob is larged, it will be chunked according to `opts.blockSize` (default 64KB).
+Store a new blob. If the blob is large, it will be chunked according to `opts.blockSize` (default 64KB).
 
 Options can include:
 ```js
