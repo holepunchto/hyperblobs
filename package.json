@@ -22,12 +22,11 @@
   },
   "homepage": "https://github.com/andrewosh/hyperblob#readme",
   "dependencies": {
-    "hypercore-promisifier": "^1.1.0",
     "hypercore-seekable-iterator": "^1.1.0",
     "mutexify": "^1.3.1"
   },
   "devDependencies": {
-    "hypercore": "^9.7.0",
+    "hypercore-x": "github:hypercore-skunkworks/hypercore-x",
     "random-access-memory": "^3.1.2",
     "standard": "^16.0.3",
     "tape": "^5.1.1"

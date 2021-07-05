@@ -1,5 +1,4 @@
 const mutexify = require('mutexify')
-const { toPromises } = require('hypercore-promisifier')
 
 const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
 
@@ -9,8 +8,9 @@ module.exports = class Hyperblobs {
   constructor (core, opts = {}) {
     this.core = core
     this.blockSize = opts.blockSize || DEFAULT_BLOCK_SIZE
+
     this._lock = mutexify()
-    this._core = toPromises(core)
+    this._core = core
   }
 
   get feed () {

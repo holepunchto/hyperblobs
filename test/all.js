@@ -1,12 +1,11 @@
 const test = require('tape')
-const hypercore = require('hypercore')
+const Hypercore = require('hypercore-x')
 const ram = require('random-access-memory')
-const { toPromises } = require('hypercore-promisifier')
 
 const Hyperblobs = require('..')
 
 test('can get/put a large blob', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core)
 
   const buf = Buffer.alloc(5 * blobs.blockSize).fill('abcdefg')
@@ -18,7 +17,7 @@ test('can get/put a large blob', async t => {
 })
 
 test('can put/get two blobs in one core', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core)
 
   {
@@ -39,7 +38,7 @@ test('can put/get two blobs in one core', async t => {
 })
 
 test('can seek to start/length within one blob, one block', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core)
 
   const buf = Buffer.alloc(5 * blobs.blockSize).fill('abcdefg')
@@ -51,7 +50,7 @@ test('can seek to start/length within one blob, one block', async t => {
 })
 
 test('can seek to start/length within one blob, multiple blocks', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core, { blockSize: 10 })
 
   const buf = Buffer.concat([Buffer.alloc(10).fill('a'), Buffer.alloc(10).fill('b')])
@@ -63,7 +62,7 @@ test('can seek to start/length within one blob, multiple blocks', async t => {
 })
 
 test('can seek to start/length within one blob, multiple blocks, multiple blobs', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core, { blockSize: 10 })
 
   {
@@ -82,7 +81,19 @@ test('can seek to start/length within one blob, multiple blocks, multiple blobs'
 })
 
 test('can seek to start/end within one blob', async t => {
-  const core = toPromises(hypercore(ram))
+  const core = new Hypercore(ram)
+  const blobs = new Hyperblobs(core)
+
+  const buf = Buffer.alloc(5 * blobs.blockSize).fill('abcdefg')
+  const id = await blobs.put(buf)
+  const result = await blobs.get(id, { start: 2, end: 4 }) // inclusive
+  t.true(result.toString('utf-8'), 'cd')
+
+  t.end()
+})
+
+test('basic seek', async t => {
+  const core = new Hypercore(ram)
   const blobs = new Hyperblobs(core)
 
   const buf = Buffer.alloc(5 * blobs.blockSize).fill('abcdefg')
