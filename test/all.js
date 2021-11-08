@@ -1,5 +1,5 @@
 const test = require('tape')
-const Hypercore = require('hypercore-x')
+const Hypercore = require('hypercore')
 const ram = require('random-access-memory')
 
 const Hyperblobs = require('..')
