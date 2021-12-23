@@ -1,6 +1,7 @@
 const test = require('tape')
 const Hypercore = require('hypercore')
 const ram = require('random-access-memory')
+const { once } = require('events')
 
 const Hyperblobs = require('..')
 
@@ -32,6 +33,30 @@ test('can put/get two blobs in one core', async t => {
     const id = await blobs.put(buf)
     const res = await blobs.get(id)
     t.true(res.equals(buf))
+  }
+
+  t.end()
+})
+
+test("block size isn't affected by chunk size of streams", async (t) => {
+  const core = new Hypercore(ram)
+  const blockSize = 2 ** 16
+  const blobs = new Hyperblobs(core, { blockSize })
+
+  const buf = Buffer.alloc(5 * blockSize).fill('abcdefg')
+
+  // Write chunks to the stream that are smaller and larger than blockSize
+  for (const chunkSize of [blockSize / 2, blockSize * 2]) {
+    const ws = blobs.createWriteStream()
+    for (let i = 0; i < buf.length; i += chunkSize) {
+      const chunk = buf.slice(i, i + chunkSize)
+      ws.write(chunk)
+    }
+    ws.end()
+    await once(ws, 'finish')
+    const { blockOffset } = ws.id
+    const value = await core.get(blockOffset)
+    t.equal(value.length, blockSize)
   }
 
   t.end()
