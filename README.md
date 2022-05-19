@@ -48,8 +48,19 @@ Options can include:
   blockSize: 64KB, // The block size that will be used when storing large blobs.
   start: 0, // Relative offset to start within the blob
   end: blob.length - 1, // End offset within the blob (inclusive)
-  length: blob.length // Number of bytes to read.
+  length: blob.length, // Number of bytes to read.
+  core // A custom core to write (overrides the default core)
 }
+```
+
+#### `const content = await blobs.get(id, opts)`
+Return a complete blob as a `Buffer`.
+
+`id` is the value returned by `put`
+
+Options can include:
+```js
+  core // A custom core to read from (overrides the default core)
 ```
 
 #### `const stream = blobs.createReadStream(id, opts)`
