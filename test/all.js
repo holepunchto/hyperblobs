@@ -103,3 +103,19 @@ test('basic seek', async t => {
 
   t.end()
 })
+
+test('can pass in a custom core', async t => {
+  const core1 = new Hypercore(ram)
+  const core2 = new Hypercore(ram)
+  const blobs = new Hyperblobs(core1)
+  await core1.ready()
+
+  const buf = Buffer.alloc(5 * blobs.blockSize).fill('abcdefg')
+  const id = await blobs.put(buf, { core: core2 })
+  const result = await blobs.get(id, { core: core2 })
+  t.true(result.equals(buf))
+
+  t.same(core1.length, 0)
+
+  t.end()
+})
