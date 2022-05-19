@@ -46,10 +46,12 @@ module.exports = class Hyperblobs {
   }
 
   createReadStream (id, opts) {
-    return new BlobReadStream(this._core, id, opts)
+    const core = (opts && opts.core) ? opts.core : this._core
+    return new BlobReadStream(core, id, opts)
   }
 
   createWriteStream (opts) {
-    return new BlobWriteStream(this._core, this._lock, opts)
+    const core = (opts && opts.core) ? opts.core : this._core
+    return new BlobWriteStream(core, this._lock, opts)
   }
 }
