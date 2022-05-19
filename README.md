@@ -60,7 +60,9 @@ Return a complete blob as a `Buffer`.
 
 Options can include:
 ```js
+{
   core // A custom core to read from (overrides the default core)
+}
 ```
 
 #### `const stream = blobs.createReadStream(id, opts)`
