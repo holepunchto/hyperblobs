@@ -26,7 +26,9 @@ npm i hyperblobs
 ```
 
 ## API
-`const Hyperblobs = require('hyperblobs')`
+```js
+const Hyperblobs = require('hyperblobs')
+```
 
 #### `const blobs = new Hyperblobs(core, opts)`
 Create a new blob store wrapping a single Hypercore.
