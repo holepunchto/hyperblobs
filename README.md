@@ -1,5 +1,4 @@
 # hyperblobs
-![Test on Node.js](https://github.com/andrewosh/hyperblobs/workflows/Test%20on%20Node.js/badge.svg)
 
 A simple blob store for Hypercore.
 
