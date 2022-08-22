@@ -114,3 +114,20 @@ test('can pass in a custom core', async t => {
   t.alike(result, buf)
   t.is(core1.length, 0)
 })
+
+test('can put/get a blob and clear it', async t => {
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+
+  const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
+  const id = await blobs.put(buf)
+
+  t.alike(await blobs.get(id), buf)
+
+  await blobs.clear(id)
+
+  for (let i = 0; i < id.blockLength; i++) {
+    const block = id.blockOffset + i
+    t.absent(await core.has(block), `block ${block} cleared`)
+  }
+})

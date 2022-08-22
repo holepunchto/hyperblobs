@@ -45,6 +45,10 @@ module.exports = class Hyperblobs {
     return Buffer.concat(res)
   }
 
+  async clear (id) {
+    return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength)
+  }
+
   createReadStream (id, opts) {
     const core = (opts && opts.core) ? opts.core : this._core
     return new BlobReadStream(core, id, opts)
