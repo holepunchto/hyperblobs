@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hypercore-protocol/hyperblob.git"
+    "url": "git+https://github.com/hypercore-protocol/hyperblobs.git"
   },
   "keywords": [
     "hypercore",
@@ -18,9 +18,9 @@
   "author": "Andrew Osheroff <andrewosh@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hypercore-protocol/hyperblob/issues"
+    "url": "https://github.com/hypercore-protocol/hyperblobs/issues"
   },
-  "homepage": "https://github.com/hypercore-protocol/hyperblob#readme",
+  "homepage": "https://github.com/hypercore-protocol/hyperblobs#readme",
   "dependencies": {
     "mutexify": "^1.4.0",
     "streamx": "^2.12.4"
