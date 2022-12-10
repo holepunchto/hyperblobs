@@ -1,4 +1,5 @@
 const mutexify = require('mutexify')
+const b4a = require('b4a')
 
 const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
 
@@ -22,12 +23,12 @@ module.exports = class Hyperblobs {
   }
 
   async put (blob, opts) {
-    if (!Buffer.isBuffer(blob)) blob = Buffer.from(blob)
+    if (!b4a.isBuffer(blob)) blob = b4a.from(blob)
     const blockSize = (opts && opts.blockSize) || this.blockSize
 
     const stream = this.createWriteStream(opts)
     for (let i = 0; i < blob.length; i += blockSize) {
-      stream.write(blob.slice(i, i + blockSize))
+      stream.write(blob.subarray(i, i + blockSize))
     }
     stream.end()
 
@@ -42,7 +43,8 @@ module.exports = class Hyperblobs {
     for await (const block of this.createReadStream(id, opts)) {
       res.push(block)
     }
-    return Buffer.concat(res)
+    if (res.length === 1) return res[0]
+    return b4a.concat(res)
   }
 
   createReadStream (id, opts) {
