@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hypercore-protocol/hyperblobs.git"
+    "url": "git+https://github.com/holepunchto/hyperblobs.git"
   },
   "keywords": [
     "hypercore",
@@ -18,9 +18,9 @@
   "author": "Andrew Osheroff <andrewosh@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hypercore-protocol/hyperblobs/issues"
+    "url": "https://github.com/holepunchto/hyperblobs/issues"
   },
-  "homepage": "https://github.com/hypercore-protocol/hyperblobs#readme",
+  "homepage": "https://github.com/holepunchto/hyperblobs#readme",
   "dependencies": {
     "b4a": "^1.6.1",
     "mutexify": "^1.4.0",
