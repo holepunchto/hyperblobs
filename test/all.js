@@ -114,3 +114,53 @@ test('can pass in a custom core', async t => {
   t.alike(result, buf)
   t.is(core1.length, 0)
 })
+
+test('two write streams does not deadlock', async t => {
+  t.plan(2)
+
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+  await core.ready()
+
+  const ws = blobs.createWriteStream()
+
+  ws.on('open', () => ws.destroy())
+  ws.on('drain', () => t.comment('ws drained'))
+  ws.on('close', () => t.pass('ws closed'))
+
+  ws.on('close', function () {
+    const ws2 = blobs.createWriteStream()
+    ws2.write(b4a.from('hello'))
+    ws2.end()
+    ws2.on('close', () => t.pass('ws2 closed'))
+  })
+})
+
+test('append error does not deadlock', async t => {
+  t.plan(2)
+
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+  await core.ready()
+
+  const ws = blobs.createWriteStream()
+
+  ws.on('open', async function () {
+    await core.close()
+
+    ws.write(b4a.from('hello'))
+    ws.end()
+  })
+
+  ws.on('drain', () => t.comment('ws drained'))
+  ws.on('error', (err) => t.comment('ws error: ' + err.message))
+  ws.on('close', () => t.pass('ws closed'))
+
+  ws.on('close', function () {
+    const core2 = new Hypercore(RAM)
+    const ws2 = blobs.createWriteStream({ core: core2 })
+    ws2.write(b4a.from('hello'))
+    ws2.end()
+    ws2.on('close', () => t.pass('ws2 closed'))
+  })
+})
