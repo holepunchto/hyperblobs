@@ -62,7 +62,9 @@ Return a complete blob as a `Buffer`.
 Options can include:
 ```js
 {
-  core // A custom core to read from (overrides the default core)
+  core, // A custom core to read from (overrides the default core)
+  wait: true, // Wait for block to be downloaded
+  timeout: 0 // Wait at max some milliseconds (0 means no timeout)
 }
 ```
 
