@@ -66,6 +66,9 @@ Options can include:
 }
 ```
 
+#### `await blobs.clear(id)`
+Remove a blob from the core.
+
 #### `const stream = blobs.createReadStream(id, opts)`
 Create a Readable stream that will yield the `id` blob.
 
