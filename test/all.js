@@ -183,44 +183,50 @@ test('can put/get a blob and clear it', async t => {
 })
 
 test('get with timeout', async function (t) {
+  t.plan(1)
+
   const core1 = new Hypercore(RAM)
   await core1.ready()
 
   const core2 = new Hypercore(RAM, core1.key)
   await core2.ready()
 
-  replicate(t, core1, core2)
+  replicate(core1, core2)
 
   const blobs = new Hyperblobs(core2)
 
   try {
     const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
     await blobs.get(id, { timeout: 1 })
+    t.fail('should have failed')
   } catch (error) {
     t.is(error.code, 'REQUEST_TIMEOUT')
   }
 })
 
 test('seek with timeout', async function (t) {
+  t.plan(1)
+
   const core1 = new Hypercore(RAM)
   await core1.ready()
 
   const core2 = new Hypercore(RAM, core1.key)
   await core2.ready()
 
-  replicate(t, core1, core2)
+  replicate(core1, core2)
 
   const blobs = new Hyperblobs(core2)
 
   try {
     const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
     await blobs.get(id, { start: 100, timeout: 1 })
+    t.fail('should have failed')
   } catch (error) {
     t.is(error.code, 'REQUEST_TIMEOUT')
   }
 })
 
-function replicate (t, a, b) {
+function replicate (a, b) {
   const s1 = a.replicate(true, { keepAlive: false })
   const s2 = b.replicate(false, { keepAlive: false })
   s1.pipe(s2).pipe(s1)
