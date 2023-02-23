@@ -43,6 +43,7 @@ module.exports = class Hyperblobs {
     for await (const block of this.createReadStream(id, opts)) {
       res.push(block)
     }
+    if (res.length === 0) return null
     if (res.length === 1) return res[0]
     return b4a.concat(res)
   }

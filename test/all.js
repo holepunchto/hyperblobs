@@ -226,6 +226,42 @@ test('seek with timeout', async function (t) {
   }
 })
 
+test('get without waiting', async function (t) {
+  t.plan(1)
+
+  const core1 = new Hypercore(RAM)
+  await core1.ready()
+
+  const core2 = new Hypercore(RAM, core1.key)
+  await core2.ready()
+
+  replicate(core1, core2)
+
+  const blobs = new Hyperblobs(core2)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+  const blob = await blobs.get(id, { wait: false })
+  t.is(blob, null)
+})
+
+test('seek without waiting', async function (t) {
+  t.plan(1)
+
+  const core1 = new Hypercore(RAM)
+  await core1.ready()
+
+  const core2 = new Hypercore(RAM, core1.key)
+  await core2.ready()
+
+  replicate(core1, core2)
+
+  const blobs = new Hyperblobs(core2)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+  const blob = await blobs.get(id, { start: 100, wait: false })
+  t.is(blob, null)
+})
+
 function replicate (a, b) {
   const s1 = a.replicate(true, { keepAlive: false })
   const s2 = b.replicate(false, { keepAlive: false })
