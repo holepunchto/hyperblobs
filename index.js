@@ -40,10 +40,16 @@ module.exports = class Hyperblobs {
 
   async get (id, opts) {
     const res = []
-    for await (const block of this.createReadStream(id, opts)) {
-      res.push(block)
+
+    try {
+      for await (const block of this.createReadStream(id, opts)) {
+        res.push(block)
+      }
+    } catch (error) {
+      if (error.message === 'Block not available') return null
+      throw error
     }
-    if (res.length === 0) return null
+
     if (res.length === 1) return res[0]
     return b4a.concat(res)
   }
