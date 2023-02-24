@@ -262,6 +262,30 @@ test('seek without waiting', async function (t) {
   t.is(blob, null)
 })
 
+test('read stream with timeout', async function (t) {
+  t.plan(1)
+
+  const core1 = new Hypercore(RAM)
+  await core1.ready()
+
+  const core2 = new Hypercore(RAM, core1.key)
+  await core2.ready()
+
+  replicate(core1, core2)
+
+  const blobs = new Hyperblobs(core2)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+
+  try {
+    for await (const block of blobs.createReadStream(id, { timeout: 1 })) {
+      t.fail('should not get any block: ' + block.toString())
+    }
+  } catch (error) {
+    t.is(error.code, 'REQUEST_TIMEOUT')
+  }
+})
+
 test('read stream without waiting', async function (t) {
   t.plan(1)
 
