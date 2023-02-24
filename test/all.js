@@ -185,15 +185,8 @@ test('can put/get a blob and clear it', async t => {
 test('get with timeout', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   try {
     const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
@@ -207,15 +200,8 @@ test('get with timeout', async function (t) {
 test('seek with timeout', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   try {
     const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
@@ -229,15 +215,8 @@ test('seek with timeout', async function (t) {
 test('get without waiting', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
   const blob = await blobs.get(id, { wait: false })
@@ -247,15 +226,8 @@ test('get without waiting', async function (t) {
 test('seek without waiting', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
   const blob = await blobs.get(id, { start: 100, wait: false })
@@ -265,15 +237,8 @@ test('seek without waiting', async function (t) {
 test('read stream with timeout', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
 
@@ -289,15 +254,8 @@ test('read stream with timeout', async function (t) {
 test('read stream without waiting', async function (t) {
   t.plan(1)
 
-  const core1 = new Hypercore(RAM)
-  await core1.ready()
-
-  const core2 = new Hypercore(RAM, core1.key)
-  await core2.ready()
-
-  replicate(core1, core2)
-
-  const blobs = new Hyperblobs(core2)
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
 
   const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
 
@@ -309,6 +267,18 @@ test('read stream without waiting', async function (t) {
     t.is(error.message, 'Block not available')
   }
 })
+
+async function createPair () {
+  const a = new Hypercore(RAM)
+  await a.ready()
+
+  const b = new Hypercore(RAM, a.key)
+  await b.ready()
+
+  replicate(a, b)
+
+  return [a, b]
+}
 
 function replicate (a, b) {
   const s1 = a.replicate(true, { keepAlive: false })
