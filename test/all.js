@@ -268,6 +268,23 @@ test('read stream without waiting', async function (t) {
   }
 })
 
+test('seek stream without waiting', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+
+  try {
+    for await (const block of blobs.createReadStream(id, { start: 100, wait: false })) {
+      t.fail('should not get any block: ' + block.toString())
+    }
+  } catch (error) {
+    t.is(error.message, 'Block not available')
+  }
+})
+
 async function createPair () {
   const a = new Hypercore(RAM)
   await a.ready()
