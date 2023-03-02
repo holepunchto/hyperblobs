@@ -181,3 +181,125 @@ test('can put/get a blob and clear it', async t => {
     t.absent(await core.has(block), `block ${block} cleared`)
   }
 })
+
+test('get with timeout', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  try {
+    const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+    await blobs.get(id, { timeout: 1 })
+    t.fail('should have failed')
+  } catch (error) {
+    t.is(error.code, 'REQUEST_TIMEOUT')
+  }
+})
+
+test('seek with timeout', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  try {
+    const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+    await blobs.get(id, { start: 100, timeout: 1 })
+    t.fail('should have failed')
+  } catch (error) {
+    t.is(error.code, 'REQUEST_TIMEOUT')
+  }
+})
+
+test('get without waiting', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+  const blob = await blobs.get(id, { wait: false })
+  t.is(blob, null)
+})
+
+test('seek without waiting', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+  const blob = await blobs.get(id, { start: 100, wait: false })
+  t.is(blob, null)
+})
+
+test('read stream with timeout', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+
+  try {
+    for await (const block of blobs.createReadStream(id, { timeout: 1 })) {
+      t.fail('should not get any block: ' + block.toString())
+    }
+  } catch (error) {
+    t.is(error.code, 'REQUEST_TIMEOUT')
+  }
+})
+
+test('read stream without waiting', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+
+  try {
+    for await (const block of blobs.createReadStream(id, { wait: false })) {
+      t.fail('should not get any block: ' + block.toString())
+    }
+  } catch (error) {
+    t.is(error.message, 'Block not available')
+  }
+})
+
+test('seek stream without waiting', async function (t) {
+  t.plan(1)
+
+  const [, b] = await createPair()
+  const blobs = new Hyperblobs(b)
+
+  const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
+
+  try {
+    for await (const block of blobs.createReadStream(id, { start: 100, wait: false })) {
+      t.fail('should not get any block: ' + block.toString())
+    }
+  } catch (error) {
+    t.is(error.message, 'Block not available')
+  }
+})
+
+async function createPair () {
+  const a = new Hypercore(RAM)
+  await a.ready()
+
+  const b = new Hypercore(RAM, a.key)
+  await b.ready()
+
+  replicate(a, b)
+
+  return [a, b]
+}
+
+function replicate (a, b) {
+  const s1 = a.replicate(true, { keepAlive: false })
+  const s2 = b.replicate(false, { keepAlive: false })
+  s1.pipe(s2).pipe(s1)
+  return [s1, s2]
+}
