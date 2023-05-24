@@ -68,8 +68,10 @@ Options can include:
 }
 ```
 
-#### `await blobs.clear(id)`
+#### `await blobs.clear(id, opts)`
 Remove a blob from the core.
+
+`opts` are the same as `Hypercore.clear` method.
 
 #### `const stream = blobs.createReadStream(id, opts)`
 Create a Readable stream that will yield the `id` blob.
