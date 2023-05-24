@@ -288,10 +288,10 @@ test('seek stream without waiting', async function (t) {
 test('clear with diff option', async function (t) {
   t.plan(3)
 
-  const core = new Hypercore(RAM)
+  const core = new Hypercore(() => new RAM({ pageSize: 128 }))
   const blobs = new Hyperblobs(core)
 
-  const buf = b4a.alloc(1024 * 1024)
+  const buf = b4a.alloc(128)
   const id = await blobs.put(buf)
   const id2 = await blobs.put(buf)
 
