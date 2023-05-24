@@ -54,8 +54,8 @@ module.exports = class Hyperblobs {
     return b4a.concat(res)
   }
 
-  async clear (id) {
-    return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength)
+  async clear (id, opts) {
+    return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength, opts)
   }
 
   createReadStream (id, opts) {

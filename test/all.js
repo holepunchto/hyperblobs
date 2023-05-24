@@ -285,6 +285,27 @@ test('seek stream without waiting', async function (t) {
   }
 })
 
+test('clear with diff option', async function (t) {
+  t.plan(3)
+
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+
+  const buf = b4a.alloc(5 * blobs.blockSize, 'abc')
+
+  const id = await blobs.put(buf)
+  const id2 = await blobs.put(buf)
+
+  const cleared = await blobs.clear(id)
+  t.is(cleared, null)
+
+  const cleared2 = await blobs.clear(id2, { diff: true })
+  t.ok(cleared2.blocks > 0)
+
+  const cleared3 = await blobs.clear(id2, { diff: true })
+  t.is(cleared3.blocks, 0)
+})
+
 async function createPair () {
   const a = new Hypercore(RAM)
   await a.ready()
