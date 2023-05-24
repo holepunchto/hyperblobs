@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "brittle": "^3.1.0",
-    "hypercore": "^10.0.0",
+    "hypercore": "github:holepunchto/hypercore",
     "random-access-memory": "^6.0.0",
     "standard": "^17.0.0"
   }
