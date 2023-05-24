@@ -291,7 +291,7 @@ test('clear with diff option', async function (t) {
   const core = new Hypercore(RAM)
   const blobs = new Hyperblobs(core)
 
-  const buf = b4a.alloc(512 * 1024)
+  const buf = b4a.alloc(1024 * 1024)
   const id = await blobs.put(buf)
   const id2 = await blobs.put(buf)
 
