@@ -84,4 +84,4 @@ Create a Writable stream that will save a blob.
 The corresponding ID will be set on the stream at `stream.id`.
 
 ## License
-MIT
+Apache-2.0
