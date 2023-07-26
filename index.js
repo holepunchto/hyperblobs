@@ -46,7 +46,7 @@ module.exports = class Hyperblobs {
         res.push(block)
       }
     } catch (error) {
-      if (error.message === 'Block not available') return null
+      if (error.code === 'BLOCK_NOT_AVAILABLE') return null
       throw error
     }
 

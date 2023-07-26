@@ -264,7 +264,7 @@ test('read stream without waiting', async function (t) {
       t.fail('should not get any block: ' + block.toString())
     }
   } catch (error) {
-    t.is(error.message, 'Block not available')
+    t.is(error.code, 'BLOCK_NOT_AVAILABLE')
   }
 })
 
@@ -281,7 +281,7 @@ test('seek stream without waiting', async function (t) {
       t.fail('should not get any block: ' + block.toString())
     }
   } catch (error) {
-    t.is(error.message, 'Block not available')
+    t.is(error.code, 'BLOCK_NOT_AVAILABLE')
   }
 })
 
