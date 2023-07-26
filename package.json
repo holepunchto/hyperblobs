@@ -23,12 +23,12 @@
   "homepage": "https://github.com/holepunchto/hyperblobs#readme",
   "dependencies": {
     "b4a": "^1.6.1",
+    "hypercore": "^10.18.0",
     "mutexify": "^1.4.0",
     "streamx": "^2.13.2"
   },
   "devDependencies": {
     "brittle": "^3.1.0",
-    "hypercore": "^10.11.0",
     "random-access-memory": "^6.0.0",
     "standard": "^17.0.0"
   }
