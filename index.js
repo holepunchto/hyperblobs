@@ -1,4 +1,4 @@
-const mutexify = require('mutexify')
+const mutexify = require('mutexify/promise')
 const b4a = require('b4a')
 
 const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
@@ -11,7 +11,6 @@ module.exports = class Hyperblobs {
     this.blockSize = opts.blockSize || DEFAULT_BLOCK_SIZE
 
     this._lock = mutexify()
-    this._core = core
   }
 
   get feed () {
@@ -59,12 +58,12 @@ module.exports = class Hyperblobs {
   }
 
   createReadStream (id, opts) {
-    const core = (opts && opts.core) ? opts.core : this._core
+    const core = (opts && opts.core) ? opts.core : this.core
     return new BlobReadStream(core, id, opts)
   }
 
   createWriteStream (opts) {
-    const core = (opts && opts.core) ? opts.core : this._core
+    const core = (opts && opts.core) ? opts.core : this.core
     return new BlobWriteStream(core, this._lock, opts)
   }
 }
