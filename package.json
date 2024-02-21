@@ -23,7 +23,7 @@
   "homepage": "https://github.com/holepunchto/hyperblobs#readme",
   "dependencies": {
     "b4a": "^1.6.1",
-    "hypercore-errors": "^1.0.0",
+    "hypercore-errors": "^1.1.1",
     "mutexify": "^1.4.0",
     "streamx": "^2.13.2"
   },
