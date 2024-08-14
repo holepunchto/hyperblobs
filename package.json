@@ -21,6 +21,10 @@
     "url": "https://github.com/holepunchto/hyperblobs/issues"
   },
   "homepage": "https://github.com/holepunchto/hyperblobs#readme",
+  "files": [
+    "index.js",
+    "lib/**.js"
+  ],
   "dependencies": {
     "b4a": "^1.6.1",
     "hypercore-errors": "^1.1.1",
