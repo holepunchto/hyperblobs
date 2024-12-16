@@ -305,6 +305,73 @@ test('clear with diff option', async function (t) {
   t.is(cleared3.blocks, 0)
 })
 
+test.solo('upload/download can be monitored', async (t) => {
+  t.plan(30)
+
+  const [a, b] = await createPair()
+  const blobsA = new Hyperblobs(a)
+  const blobsB = new Hyperblobs(b)
+
+  const bytes = 1024 * 100 // big enough to trigger more than one update event
+  const buf = Buffer.alloc(bytes, '0')
+  const id = await blobsA.put(buf)
+
+  // add another blob which should not be monitored
+  const controlId = await blobsA.put(buf)
+
+  {
+    const expectedBlocks = [2, 1]
+    const expectedBytes = [bytes, 65536]
+    const expectedPercentage = [100, 50]
+
+    // Start monitoring upload
+    const monitor = blobsA.monitor(id)
+    monitor.on('update', () => {
+      t.is(monitor.uploadStats.blocks, expectedBlocks.pop())
+      t.is(monitor.uploadStats.monitoringBytes, expectedBytes.pop())
+      t.is(monitor.uploadStats.targetBlocks, 2)
+      t.is(monitor.uploadStats.targetBytes, bytes)
+      t.is(monitor.uploadSpeed(), monitor.uploadStats.speed)
+      t.is(monitor.uploadStats.percentage, expectedPercentage.pop())
+      t.absent(monitor.downloadStats.blocks)
+    })
+  }
+
+  {
+    // Start monitoring download
+    const expectedBlocks = [2, 1]
+    const expectedBytes = [bytes, 65536]
+    const expectedPercentage = [100, 50]
+
+    const monitor = blobsB.monitor(id)
+    monitor.on('update', () => {
+      t.is(monitor.downloadStats.blocks, expectedBlocks.pop())
+      t.is(monitor.downloadStats.monitoringBytes, expectedBytes.pop())
+      t.is(monitor.downloadStats.targetBlocks, 2)
+      t.is(monitor.downloadStats.targetBytes, bytes)
+      t.is(monitor.downloadSpeed(), monitor.downloadStats.speed)
+      t.is(monitor.downloadStats.percentage, expectedPercentage.pop())
+      t.absent(monitor.uploadStats.blocks)
+    })
+  }
+
+  const res = await blobsB.get(id)
+  t.alike(res, buf)
+
+  // should not generate events
+  const controRes = await blobsB.get(controlId)
+  t.alike(controRes, buf)
+})
+
+// test('monitor is removed from the Set on close', async (t) => {
+//   const { drive } = await testenv(t)
+//   const monitor = drive.monitor('/example.md')
+//   await monitor.ready()
+//   t.is(drive.monitors.size, 1)
+//   await monitor.close()
+//   t.is(drive.monitors.size, 0)
+// })
+
 async function createPair () {
   const a = new Hypercore(RAM)
   await a.ready()

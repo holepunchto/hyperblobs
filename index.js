@@ -2,6 +2,7 @@ const mutexify = require('mutexify')
 const b4a = require('b4a')
 
 const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
+const Monitor = require('./lib/monitor')
 
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
@@ -12,6 +13,7 @@ module.exports = class Hyperblobs {
 
     this._lock = mutexify()
     this._core = core
+    this.monitors = new Set()
   }
 
   get feed () {
@@ -67,4 +69,16 @@ module.exports = class Hyperblobs {
     const core = (opts && opts.core) ? opts.core : this._core
     return new BlobWriteStream(core, this._lock, opts)
   }
+
+  monitor (id, opts = {}) {
+    const monitor = new Monitor(this, id, { ...opts })
+    this.monitors.add(monitor)
+    return monitor
+  }
+
+//  closeMonitors () {
+//     const closing = []
+//     for (const monitor of this.monitors) closing.push(monitor.close())
+//     await Promise.allSettled(closing)
+//   }
 }
