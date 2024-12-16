@@ -2,6 +2,7 @@ const mutexify = require('mutexify')
 const b4a = require('b4a')
 
 const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
+const Monitor = require('./lib/monitor')
 
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
@@ -12,6 +13,11 @@ module.exports = class Hyperblobs {
 
     this._lock = mutexify()
     this._core = core
+    this._monitors = new Set()
+
+    this._boundUpdatePeers = this._updatePeers.bind(this)
+    this._boundOnUpload = this._onUpload.bind(this)
+    this._boundOnDownload = this._onDownload.bind(this)
   }
 
   get feed () {
@@ -66,5 +72,43 @@ module.exports = class Hyperblobs {
   createWriteStream (opts) {
     const core = (opts && opts.core) ? opts.core : this._core
     return new BlobWriteStream(core, this._lock, opts)
+  }
+
+  monitor (id) {
+    const monitor = new Monitor(this, id)
+    if (this._monitors.size === 0) this._startListening()
+    this._monitors.add(monitor)
+    return monitor
+  }
+
+  _removeMonitor (mon) {
+    this._monitors.delete(mon)
+    if (this._monitors.size === 0) this._stopListening()
+  }
+
+  _updatePeers () {
+    for (const m of this._monitors) m._updatePeers()
+  }
+
+  _onUpload (index, bytes, from) {
+    for (const m of this._monitors) m._onUpload(index, bytes, from)
+  }
+
+  _onDownload (index, bytes, from) {
+    for (const m of this._monitors) m._onDownload(index, bytes, from)
+  }
+
+  _startListening () {
+    this.core.on('peer-add', this._boundUpdatePeers)
+    this.core.on('peer-remove', this._boundUpdatePeers)
+    this.core.on('upload', this._boundOnUpload)
+    this.core.on('download', this._boundOnDownload)
+  }
+
+  _stopListening () {
+    this.core.off('peer-add', this._boundUpdatePeers)
+    this.core.off('peer-remove', this._boundUpdatePeers)
+    this.core.off('upload', this._boundOnUpload)
+    this.core.off('download', this._boundOnDownload)
   }
 }
