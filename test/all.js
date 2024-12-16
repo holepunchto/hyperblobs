@@ -305,7 +305,7 @@ test('clear with diff option', async function (t) {
   t.is(cleared3.blocks, 0)
 })
 
-test.solo('upload/download can be monitored', async (t) => {
+test('upload/download can be monitored', async (t) => {
   t.plan(30)
 
   const [a, b] = await createPair()
