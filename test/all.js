@@ -371,9 +371,9 @@ test('monitor is removed from the Set on close', async (t) => {
   const buf = Buffer.alloc(bytes, '0')
   const id = await blobs.put(buf)
   const monitor = blobs.monitor(id)
-  t.is(blobs.monitors.size, 1)
-  await monitor.close()
-  t.is(blobs.monitors.size, 0)
+  t.is(blobs._monitors.size, 1)
+  monitor.close()
+  t.is(blobs._monitors.size, 0)
 })
 
 async function createPair () {
