@@ -30,7 +30,6 @@
     "hypercore-errors": "^1.1.1",
     "mutexify": "^1.4.0",
     "ready-resource": "^1.1.1",
-    "safety-catch": "^1.0.2",
     "speedometer": "^1.1.0",
     "streamx": "^2.13.2"
   },
