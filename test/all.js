@@ -363,14 +363,18 @@ test('upload/download can be monitored', async (t) => {
   t.alike(controRes, buf)
 })
 
-// test('monitor is removed from the Set on close', async (t) => {
-//   const { drive } = await testenv(t)
-//   const monitor = drive.monitor('/example.md')
-//   await monitor.ready()
-//   t.is(drive.monitors.size, 1)
-//   await monitor.close()
-//   t.is(drive.monitors.size, 0)
-// })
+test('monitor is removed from the Set on close', async (t) => {
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+
+  const bytes = 1024 * 100 // big enough to trigger more than one update event
+  const buf = Buffer.alloc(bytes, '0')
+  const id = await blobs.put(buf)
+  const monitor = blobs.monitor(id)
+  t.is(blobs.monitors.size, 1)
+  await monitor.close()
+  t.is(blobs.monitors.size, 0)
+})
 
 async function createPair () {
   const a = new Hypercore(RAM)

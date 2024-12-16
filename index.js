@@ -75,10 +75,4 @@ module.exports = class Hyperblobs {
     this.monitors.add(monitor)
     return monitor
   }
-
-//  closeMonitors () {
-//     const closing = []
-//     for (const monitor of this.monitors) closing.push(monitor.close())
-//     await Promise.allSettled(closing)
-//   }
 }
