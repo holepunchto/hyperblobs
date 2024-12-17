@@ -392,6 +392,8 @@ test('basic batch', async (t) => {
     const buf = await batch.get(id)
     t.alike(buf, Buffer.from('hej verden'))
   }
+
+  await batch.flush()
 })
 
 async function createPair () {

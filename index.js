@@ -58,7 +58,7 @@ class HyperBlobsBatch {
   }
 
   async flush () {
-    await this.core.append(this.blocks)
+    await this.blobs.core.append(this.blocks)
     this.blocks = []
     this.bytes = 0
   }
