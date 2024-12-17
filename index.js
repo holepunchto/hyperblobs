@@ -123,6 +123,8 @@ class Hyperblobs {
   }
 
   async get (id, opts) {
+    if (id.blockLength === 1) return this.core.get(id.blockOffset, opts)
+
     const res = []
 
     try {
