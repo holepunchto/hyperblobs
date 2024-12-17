@@ -6,7 +6,7 @@ const Monitor = require('./lib/monitor')
 
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
-module.exports = class Hyperblobs {
+class Hyperblobs {
   constructor (core, opts = {}) {
     this.core = core
     this.blockSize = opts.blockSize || DEFAULT_BLOCK_SIZE
@@ -34,6 +34,10 @@ module.exports = class Hyperblobs {
 
   close () {
     return this.core.close()
+  }
+
+  snapshot () {
+    return new Hyperblobs(this.core.snapshot())
   }
 
   async put (blob, opts) {
@@ -120,3 +124,5 @@ module.exports = class Hyperblobs {
     this.core.off('download', this._boundOnDownload)
   }
 }
+
+module.exports = Hyperblobs
