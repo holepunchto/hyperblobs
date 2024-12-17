@@ -6,6 +6,60 @@ const Monitor = require('./lib/monitor')
 
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
+class HyperBlobsBatch {
+  constructor (blobs) {
+    this.blobs = blobs
+    this.blocks = []
+    this.bytes = 0
+  }
+
+  async put (buffer) {
+    if (!this.blobs.core.opened) await this.blobs.core.ready()
+
+    const blockSize = this.blobs.blockSize
+    const result = {
+      blockOffset: this.blobs.core.length + this.blocks.length,
+      blockLength: 0,
+      byteOffset: this.blobs.core.byteLength + this.bytes,
+      byteLength: 0
+    }
+
+    let offset = 0
+    while (offset < buffer.byteLength) {
+      const blk = buffer.subarray(offset, offset + blockSize)
+      offset += blockSize
+
+      result.blockLength++
+      result.byteLength += blk.byteLength
+      this.bytes += blk.byteLength
+      this.blocks.push(blk)
+    }
+
+    return result
+  }
+
+  async get (id) {
+    if (id.blockOffset < this.blobs.core.length) {
+      return this.blobs.get(id)
+    }
+
+    const bufs = []
+
+    for (let i = id.blockOffset - this.blobs.core.length; i < id.blockOffset + id.blockLength; i++) {
+      if (i >= this.blocks.length) return null
+      bufs.push(this.blocks[i])
+    }
+
+    return bufs.length === 1 ? bufs[0] : b4a.concat(bufs)
+  }
+
+  async flush () {
+    await this.core.append(this.blocks)
+    this.blocks = []
+    this.bytes = 0
+  }
+}
+
 class Hyperblobs {
   constructor (core, opts = {}) {
     this.core = core
@@ -34,6 +88,10 @@ class Hyperblobs {
 
   close () {
     return this.core.close()
+  }
+
+  batch () {
+    return new HyperBlobsBatch(this)
   }
 
   snapshot () {

@@ -376,6 +376,24 @@ test('monitor is removed from the Set on close', async (t) => {
   t.is(blobs._monitors.size, 0)
 })
 
+test('basic batch', async (t) => {
+  const core = new Hypercore(RAM)
+  const blobs = new Hyperblobs(core)
+  const batch = blobs.batch()
+
+  {
+    const id = await batch.put(Buffer.from('hello world'))
+    const buf = await batch.get(id)
+    t.alike(buf, Buffer.from('hello world'))
+  }
+
+  {
+    const id = await batch.put(Buffer.from('hej verden'))
+    const buf = await batch.get(id)
+    t.alike(buf, Buffer.from('hej verden'))
+  }
+})
+
 async function createPair () {
   const a = new Hypercore(RAM)
   await a.ready()
