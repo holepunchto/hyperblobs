@@ -28,6 +28,14 @@ module.exports = class Hyperblobs {
     return this._lock.locked
   }
 
+  ready () {
+    return this.core.ready()
+  }
+
+  close () {
+    return this.core.close()
+  }
+
   async put (blob, opts) {
     if (!b4a.isBuffer(blob)) blob = b4a.from(blob)
     const blockSize = (opts && opts.blockSize) || this.blockSize
