@@ -13,6 +13,10 @@ class HyperBlobsBatch {
     this.bytes = 0
   }
 
+  ready () {
+    return this.blobs.ready()
+  }
+
   async put (buffer) {
     if (!this.blobs.core.opened) await this.blobs.core.ready()
 
@@ -57,6 +61,10 @@ class HyperBlobsBatch {
     await this.core.append(this.blocks)
     this.blocks = []
     this.bytes = 0
+  }
+
+  close () {
+    // noop, atm nothing to unlink
   }
 }
 
