@@ -122,11 +122,26 @@ class Hyperblobs {
     })
   }
 
-  async get (id, opts) {
+  async _getAll (id, opts) {
     if (id.blockLength === 1) return this.core.get(id.blockOffset, opts)
 
-    const res = []
+    const promises = new Array(id.blockLength)
+    for (let i = 0; i < id.blockLength; i++) {
+      promises[i] = this.core.get(id.blockOffset + i, opts)
+    }
 
+    const blocks = await Promise.all(promises)
+    for (let i = 0; i < id.blockLength; i++) {
+      if (blocks[i] === null) return null
+    }
+    return b4a.concat(blocks)
+  }
+
+  async get (id, opts) {
+    const all = !opts || (!opts.start && opts.length === undefined && opts.end === undefined && !opts.core)
+    if (all) return this._getAll(id, opts)
+
+    const res = []
     try {
       for await (const block of this.createReadStream(id, opts)) {
         res.push(block)
