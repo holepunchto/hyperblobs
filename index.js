@@ -74,12 +74,19 @@ class Hyperblobs {
     this.blockSize = opts.blockSize || DEFAULT_BLOCK_SIZE
 
     this._lock = mutexify()
-    this._core = core
     this._monitors = new Set()
 
     this._boundUpdatePeers = this._updatePeers.bind(this)
     this._boundOnUpload = this._onUpload.bind(this)
     this._boundOnDownload = this._onDownload.bind(this)
+  }
+
+  get key () {
+    return this.core.key
+  }
+
+  get discoveryKey () {
+    return this.core.discoveryKey
   }
 
   get feed () {
@@ -88,6 +95,10 @@ class Hyperblobs {
 
   get locked () {
     return this._lock.locked
+  }
+
+  replicate (isInitiator, opts) {
+    return this.core.replicate(isInitiator, opts)
   }
 
   ready () {
@@ -160,12 +171,12 @@ class Hyperblobs {
   }
 
   createReadStream (id, opts) {
-    const core = (opts && opts.core) ? opts.core : this._core
+    const core = (opts && opts.core) ? opts.core : this.core
     return new BlobReadStream(core, id, opts)
   }
 
   createWriteStream (opts) {
-    const core = (opts && opts.core) ? opts.core : this._core
+    const core = (opts && opts.core) ? opts.core : this.core
     return new BlobWriteStream(core, this._lock, opts)
   }
 
