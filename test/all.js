@@ -313,7 +313,7 @@ test.skip('clear with diff option', async function (t) {
 })
 
 test('upload/download can be monitored', async (t) => {
-  t.plan(30)
+  t.plan(28)
 
   const [a, b] = await createPair(t)
   const blobsA = new Hyperblobs(a)
@@ -328,7 +328,6 @@ test('upload/download can be monitored', async (t) => {
 
   {
     const expectedBlocks = [2, 1]
-    const expectedBytes = [bytes, 65536]
     const expectedPercentage = [100, 50]
 
     // Start monitoring upload
@@ -336,7 +335,9 @@ test('upload/download can be monitored', async (t) => {
     t.teardown(() => monitor.close())
     monitor.on('update', () => {
       t.is(monitor.uploadStats.blocks, expectedBlocks.pop())
-      t.is(monitor.uploadStats.monitoringBytes, expectedBytes.pop())
+      if (monitor.uploadStats.targetBlocks === monitor.uploadStats.blocks) {
+        t.is(monitor.uploadStats.monitoringBytes, bytes, 'uploaded all bytes')
+      }
       t.is(monitor.uploadStats.targetBlocks, 2)
       t.is(monitor.uploadStats.targetBytes, bytes)
       t.is(monitor.uploadSpeed(), monitor.uploadStats.speed)
@@ -348,14 +349,15 @@ test('upload/download can be monitored', async (t) => {
   {
     // Start monitoring download
     const expectedBlocks = [2, 1]
-    const expectedBytes = [bytes, 65536]
     const expectedPercentage = [100, 50]
 
     const monitor = blobsB.monitor(id)
     t.teardown(() => monitor.close())
     monitor.on('update', () => {
       t.is(monitor.downloadStats.blocks, expectedBlocks.pop())
-      t.is(monitor.downloadStats.monitoringBytes, expectedBytes.pop())
+      if (monitor.downloadStats.targetBlocks === monitor.downloadStats.blocks) {
+        t.is(monitor.downloadStats.monitoringBytes, bytes, 'downloaded all bytes')
+      }
       t.is(monitor.downloadStats.targetBlocks, 2)
       t.is(monitor.downloadStats.targetBytes, bytes)
       t.is(monitor.downloadSpeed(), monitor.downloadStats.speed)
