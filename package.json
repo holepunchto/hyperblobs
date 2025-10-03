@@ -4,7 +4,9 @@
   "description": "A blob store for Hypercore",
   "main": "index.js",
   "scripts": {
-    "test": "standard && brittle test/*.js"
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
+    "test": "brittle test/*.js"
   },
   "repository": {
     "type": "git",
@@ -42,6 +44,7 @@
   "devDependencies": {
     "brittle": "^3.1.0",
     "hypercore": "^11.0.0",
-    "standard": "^17.0.0"
+    "prettier": "^3.6.2",
+    "prettier-config-holepunch": "^1.0.0"
   }
 }
