@@ -7,17 +7,17 @@ const Monitor = require('./lib/monitor')
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
 class HyperBlobsBatch {
-  constructor (blobs) {
+  constructor(blobs) {
     this.blobs = blobs
     this.blocks = []
     this.bytes = 0
   }
 
-  ready () {
+  ready() {
     return this.blobs.ready()
   }
 
-  async put (buffer) {
+  async put(buffer) {
     if (!this.blobs.core.opened) await this.blobs.core.ready()
 
     const blockSize = this.blobs.blockSize
@@ -42,14 +42,18 @@ class HyperBlobsBatch {
     return result
   }
 
-  async get (id) {
+  async get(id) {
     if (id.blockOffset < this.blobs.core.length) {
       return this.blobs.get(id)
     }
 
     const bufs = []
 
-    for (let i = id.blockOffset - this.blobs.core.length; i < id.blockOffset + id.blockLength; i++) {
+    for (
+      let i = id.blockOffset - this.blobs.core.length;
+      i < id.blockOffset + id.blockLength;
+      i++
+    ) {
       if (i >= this.blocks.length) return null
       bufs.push(this.blocks[i])
     }
@@ -57,19 +61,19 @@ class HyperBlobsBatch {
     return bufs.length === 1 ? bufs[0] : b4a.concat(bufs)
   }
 
-  async flush () {
+  async flush() {
     await this.blobs.core.append(this.blocks)
     this.blocks = []
     this.bytes = 0
   }
 
-  close () {
+  close() {
     // noop, atm nothing to unlink
   }
 }
 
 class Hyperblobs {
-  constructor (core, opts = {}) {
+  constructor(core, opts = {}) {
     this.core = core
     this.blockSize = opts.blockSize || DEFAULT_BLOCK_SIZE
 
@@ -81,43 +85,43 @@ class Hyperblobs {
     this._boundOnDownload = this._onDownload.bind(this)
   }
 
-  get key () {
+  get key() {
     return this.core.key
   }
 
-  get discoveryKey () {
+  get discoveryKey() {
     return this.core.discoveryKey
   }
 
-  get feed () {
+  get feed() {
     return this.core
   }
 
-  get locked () {
+  get locked() {
     return this._lock.locked
   }
 
-  replicate (isInitiator, opts) {
+  replicate(isInitiator, opts) {
     return this.core.replicate(isInitiator, opts)
   }
 
-  ready () {
+  ready() {
     return this.core.ready()
   }
 
-  close () {
+  close() {
     return this.core.close()
   }
 
-  batch () {
+  batch() {
     return new HyperBlobsBatch(this)
   }
 
-  snapshot () {
+  snapshot() {
     return new Hyperblobs(this.core.snapshot())
   }
 
-  async put (blob, opts) {
+  async put(blob, opts) {
     if (!b4a.isBuffer(blob)) blob = b4a.from(blob)
     const blockSize = (opts && opts.blockSize) || this.blockSize
 
@@ -133,7 +137,7 @@ class Hyperblobs {
     })
   }
 
-  async _getAll (id, opts) {
+  async _getAll(id, opts) {
     if (id.blockLength === 1) return this.core.get(id.blockOffset, opts)
 
     const promises = new Array(id.blockLength)
@@ -148,8 +152,13 @@ class Hyperblobs {
     return b4a.concat(blocks)
   }
 
-  async get (id, opts) {
-    const all = !opts || (!opts.start && opts.length === undefined && opts.end === undefined && !opts.core)
+  async get(id, opts) {
+    const all =
+      !opts ||
+      (!opts.start &&
+        opts.length === undefined &&
+        opts.end === undefined &&
+        !opts.core)
     if (all) return this._getAll(id, opts)
 
     const res = []
@@ -166,52 +175,56 @@ class Hyperblobs {
     return b4a.concat(res)
   }
 
-  async clear (id, opts) {
-    return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength, opts)
+  async clear(id, opts) {
+    return this.core.clear(
+      id.blockOffset,
+      id.blockOffset + id.blockLength,
+      opts
+    )
   }
 
-  createReadStream (id, opts) {
-    const core = (opts && opts.core) ? opts.core : this.core
+  createReadStream(id, opts) {
+    const core = opts && opts.core ? opts.core : this.core
     return new BlobReadStream(core, id, opts)
   }
 
-  createWriteStream (opts) {
-    const core = (opts && opts.core) ? opts.core : this.core
+  createWriteStream(opts) {
+    const core = opts && opts.core ? opts.core : this.core
     return new BlobWriteStream(core, this._lock, opts)
   }
 
-  monitor (id) {
+  monitor(id) {
     const monitor = new Monitor(this, id)
     if (this._monitors.size === 0) this._startListening()
     this._monitors.add(monitor)
     return monitor
   }
 
-  _removeMonitor (mon) {
+  _removeMonitor(mon) {
     this._monitors.delete(mon)
     if (this._monitors.size === 0) this._stopListening()
   }
 
-  _updatePeers () {
+  _updatePeers() {
     for (const m of this._monitors) m._updatePeers()
   }
 
-  _onUpload (index, bytes, from) {
+  _onUpload(index, bytes, from) {
     for (const m of this._monitors) m._onUpload(index, bytes, from)
   }
 
-  _onDownload (index, bytes, from) {
+  _onDownload(index, bytes, from) {
     for (const m of this._monitors) m._onDownload(index, bytes, from)
   }
 
-  _startListening () {
+  _startListening() {
     this.core.on('peer-add', this._boundUpdatePeers)
     this.core.on('peer-remove', this._boundUpdatePeers)
     this.core.on('upload', this._boundOnUpload)
     this.core.on('download', this._boundOnDownload)
   }
 
-  _stopListening () {
+  _stopListening() {
     this.core.off('peer-add', this._boundUpdatePeers)
     this.core.off('peer-remove', this._boundUpdatePeers)
     this.core.off('upload', this._boundOnUpload)
