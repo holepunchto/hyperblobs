@@ -154,11 +154,7 @@ class Hyperblobs {
 
   async get(id, opts) {
     const all =
-      !opts ||
-      (!opts.start &&
-        opts.length === undefined &&
-        opts.end === undefined &&
-        !opts.core)
+      !opts || (!opts.start && opts.length === undefined && opts.end === undefined && !opts.core)
     if (all) return this._getAll(id, opts)
 
     const res = []
@@ -176,11 +172,7 @@ class Hyperblobs {
   }
 
   async clear(id, opts) {
-    return this.core.clear(
-      id.blockOffset,
-      id.blockOffset + id.blockLength,
-      opts
-    )
+    return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength, opts)
   }
 
   createReadStream(id, opts) {

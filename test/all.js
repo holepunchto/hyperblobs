@@ -359,11 +359,7 @@ test('upload/download can be monitored', async (t) => {
     monitor.on('update', () => {
       t.is(monitor.downloadStats.blocks, expectedBlocks.pop())
       if (monitor.downloadStats.targetBlocks === monitor.downloadStats.blocks) {
-        t.is(
-          monitor.downloadStats.monitoringBytes,
-          bytes,
-          'downloaded all bytes'
-        )
+        t.is(monitor.downloadStats.monitoringBytes, bytes, 'downloaded all bytes')
       }
       t.is(monitor.downloadStats.targetBlocks, 2)
       t.is(monitor.downloadStats.targetBytes, bytes)
