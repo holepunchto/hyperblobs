@@ -4,7 +4,7 @@ const Hypercore = require('hypercore')
 
 const Hyperblobs = require('..')
 
-async function create (t, opts) {
+async function create(t, opts) {
   const core = new Hypercore(await t.tmp())
   const blobs = new Hyperblobs(core)
 
@@ -15,7 +15,7 @@ async function create (t, opts) {
   return blobs
 }
 
-test('can get/put a large blob', async t => {
+test('can get/put a large blob', async (t) => {
   const blobs = await create(t)
 
   const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
@@ -25,7 +25,7 @@ test('can get/put a large blob', async t => {
   t.alike(result, buf)
 })
 
-test('can put/get two blobs in one core', async t => {
+test('can put/get two blobs in one core', async (t) => {
   const blobs = await create(t)
 
   {
@@ -45,7 +45,7 @@ test('can put/get two blobs in one core', async t => {
   }
 })
 
-test('can seek to start/length within one blob, one block', async t => {
+test('can seek to start/length within one blob, one block', async (t) => {
   const blobs = await create(t)
 
   const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
@@ -55,7 +55,7 @@ test('can seek to start/length within one blob, one block', async t => {
   t.alike(b4a.toString(result, 'utf-8'), 'cd')
 })
 
-test('can seek to start/length within one blob, multiple blocks', async t => {
+test('can seek to start/length within one blob, multiple blocks', async (t) => {
   const blobs = await create(t, { blockSize: 10 })
 
   const buf = b4a.concat([b4a.alloc(10, 'a'), b4a.alloc(10, 'b')])
@@ -65,7 +65,7 @@ test('can seek to start/length within one blob, multiple blocks', async t => {
   t.is(b4a.toString(result, 'utf-8'), 'aabb')
 })
 
-test('can seek to start/length within one blob, multiple blocks, multiple blobs', async t => {
+test('can seek to start/length within one blob, multiple blocks, multiple blobs', async (t) => {
   const blobs = await create(t, { blockSize: 10 })
 
   {
@@ -83,7 +83,7 @@ test('can seek to start/length within one blob, multiple blocks, multiple blobs'
   t.is(b4a.toString(result, 'utf-8'), 'aabb')
 })
 
-test('can seek to start/end within one blob', async t => {
+test('can seek to start/end within one blob', async (t) => {
   const blobs = await create(t)
 
   const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
@@ -93,7 +93,7 @@ test('can seek to start/end within one blob', async t => {
   t.is(b4a.toString(result, 'utf-8'), 'cde')
 })
 
-test('basic seek', async t => {
+test('basic seek', async (t) => {
   const blobs = await create(t)
 
   const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
@@ -104,7 +104,7 @@ test('basic seek', async t => {
   t.alike(result, buf.subarray(start))
 })
 
-test('can pass in a custom core', async t => {
+test('can pass in a custom core', async (t) => {
   const core1 = new Hypercore(await t.tmp())
   const core2 = new Hypercore(await t.tmp())
 
@@ -124,7 +124,7 @@ test('can pass in a custom core', async t => {
   t.is(core1.length, 0)
 })
 
-test('two write streams does not deadlock', async t => {
+test('two write streams does not deadlock', async (t) => {
   t.plan(2)
 
   const blobs = await create(t)
@@ -143,7 +143,7 @@ test('two write streams does not deadlock', async t => {
   })
 })
 
-test('append error does not deadlock', async t => {
+test('append error does not deadlock', async (t) => {
   t.plan(2)
 
   const core = new Hypercore(await t.tmp())
@@ -173,7 +173,7 @@ test('append error does not deadlock', async t => {
   })
 })
 
-test('can put/get a blob and clear it', async t => {
+test('can put/get a blob and clear it', async (t) => {
   const blobs = await create(t)
 
   const buf = b4a.alloc(5 * blobs.blockSize, 'abcdefg')
@@ -284,7 +284,10 @@ test('seek stream without waiting', async function (t) {
   const id = { byteOffset: 5, blockOffset: 1, blockLength: 1, byteLength: 5 }
 
   try {
-    for await (const block of blobs.createReadStream(id, { start: 100, wait: false })) {
+    for await (const block of blobs.createReadStream(id, {
+      start: 100,
+      wait: false
+    })) {
       t.fail('should not get any block: ' + block.toString())
     }
   } catch (error) {
@@ -406,7 +409,7 @@ test('basic batch', async (t) => {
   await batch.flush()
 })
 
-async function createPair (t) {
+async function createPair(t) {
   const a = new Hypercore(await t.tmp())
   await a.ready()
   t.teardown(() => a.close(), { order: 1 })
@@ -420,7 +423,7 @@ async function createPair (t) {
   return [a, b]
 }
 
-function replicate (a, b) {
+function replicate(a, b) {
   const s1 = a.replicate(true, { keepAlive: false })
   const s2 = b.replicate(false, { keepAlive: false })
   s1.pipe(s2).pipe(s1)
