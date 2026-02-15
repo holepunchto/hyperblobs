@@ -409,7 +409,7 @@ test('basic batch', async (t) => {
   await batch.flush()
 })
 
-test.solo('basic block map', async (t) => {
+test('basic block map', async (t) => {
   const blobs = await create(t)
 
   {
@@ -448,6 +448,27 @@ test.solo('basic block map', async (t) => {
       t.alike(blob, buf.subarray(60000, 70000))
     }
   }
+})
+
+test('block map dedup', async (t) => {
+  const blobs = await create(t)
+
+  const buf = Buffer.alloc(1024 * 1024 * 3 + 1)
+  const buf2 = Buffer.alloc(1024 * 1024 * 3 + 2)
+  const id = await blobs.put(buf, { blockMap: true, dedup: true })
+
+  {
+    const blob = await blobs.get(id)
+    t.alike(blob, buf)
+  }
+
+  {
+    const n = await blobs.put(buf2, { blob: id, dedup: true })
+    const blob = await blobs.get(n)
+    t.alike(blob, buf2)
+  }
+
+  t.is(blobs.core.length, 5)
 })
 
 async function createPair(t) {
