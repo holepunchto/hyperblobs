@@ -409,6 +409,47 @@ test('basic batch', async (t) => {
   await batch.flush()
 })
 
+test.solo('basic block map', async (t) => {
+  const blobs = await create(t)
+
+  {
+    const id = await blobs.put(Buffer.from('hello world'), { blockMap: true })
+    const blob = await blobs.get(id)
+    t.alike(blob, Buffer.from('hello world'))
+  }
+
+  {
+    const id = await blobs.put(Buffer.alloc(1024 * 1024), { blockMap: true })
+    const blob = await blobs.get(id)
+    t.alike(blob, Buffer.alloc(1024 * 1024))
+  }
+
+  {
+    const buf = Buffer.alloc(1024 * 1024, '0123456789')
+    const id = await blobs.put(buf, { blockMap: true })
+
+    {
+      const blob = await blobs.get(id, { start: 0, end: 0 })
+      t.alike(blob, Buffer.from('0'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 0, end: 1 })
+      t.alike(blob, Buffer.from('01'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 1, end: 1 })
+      t.alike(blob, Buffer.from('1'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 60000, length: 10000 })
+      t.alike(blob, buf.subarray(60000, 70000))
+    }
+  }
+})
+
 async function createPair(t) {
   const a = new Hypercore(await t.tmp())
   await a.ready()
