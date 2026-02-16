@@ -182,9 +182,7 @@ class Hyperblobs {
 
   createReadStream(id, opts) {
     const core = opts && opts.core ? opts.core : this.core
-    return id.blockMap
-      ? new BlockMapReadStream(core, id, opts)
-      : new BlobReadStream(core, id, opts)
+    return id.blockMap ? new BlockMapReadStream(core, id, opts) : new BlobReadStream(core, id, opts)
   }
 
   createWriteStream(opts) {
