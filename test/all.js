@@ -323,7 +323,7 @@ test('upload/download can be monitored', async (t) => {
   const blobsB = new Hyperblobs(b)
 
   const bytes = 1024 * 100 // big enough to trigger more than one update event
-  const buf = Buffer.alloc(bytes, '0')
+  const buf = b4a.alloc(bytes, '0')
   const id = await blobsA.put(buf)
 
   // add another blob which should not be monitored
@@ -381,7 +381,7 @@ test('monitor is removed from the Set on close', async (t) => {
   const blobs = await create(t)
 
   const bytes = 1024 * 100 // big enough to trigger more than one update event
-  const buf = Buffer.alloc(bytes, '0')
+  const buf = b4a.alloc(bytes, '0')
   const id = await blobs.put(buf)
   const monitor = blobs.monitor(id)
   t.teardown(() => monitor.close())
@@ -395,18 +395,85 @@ test('basic batch', async (t) => {
   const batch = blobs.batch()
 
   {
-    const id = await batch.put(Buffer.from('hello world'))
+    const id = await batch.put(b4a.from('hello world'))
     const buf = await batch.get(id)
-    t.alike(buf, Buffer.from('hello world'))
+    t.alike(buf, b4a.from('hello world'))
   }
 
   {
-    const id = await batch.put(Buffer.from('hej verden'))
+    const id = await batch.put(b4a.from('hej verden'))
     const buf = await batch.get(id)
-    t.alike(buf, Buffer.from('hej verden'))
+    t.alike(buf, b4a.from('hej verden'))
   }
 
   await batch.flush()
+})
+
+test('basic block map', async (t) => {
+  const blobs = await create(t)
+
+  {
+    const id = await blobs.put(b4a.from('hello world'), { blockMap: true })
+    const blob = await blobs.get(id)
+    t.alike(blob, b4a.from('hello world'))
+  }
+
+  {
+    const id = await blobs.put(b4a.alloc(1024 * 1024), { blockMap: true })
+    const blob = await blobs.get(id)
+    t.alike(blob, b4a.alloc(1024 * 1024))
+  }
+
+  {
+    const buf = b4a.alloc(1024 * 1024, '0123456789')
+    const id = await blobs.put(buf, { blockMap: true })
+
+    {
+      const blob = await blobs.get(id, { start: 0, end: 0 })
+      t.alike(blob, b4a.from('0'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 0, end: 1 })
+      t.alike(blob, b4a.from('01'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 1, end: 1 })
+      t.alike(blob, b4a.from('1'))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 60000, length: 10000 })
+      t.alike(blob, buf.subarray(60000, 70000))
+    }
+
+    {
+      const blob = await blobs.get(id, { start: 1, end: buf.byteLength - 2 })
+      t.alike(blob, buf.subarray(1, buf.byteLength - 1))
+    }
+  }
+})
+
+test('block map dedup', async (t) => {
+  const blobs = await create(t)
+
+  const buf = b4a.alloc(1024 * 1024 * 3 + 1)
+  const buf2 = b4a.alloc(1024 * 1024 * 3 + 2)
+  const id = await blobs.put(buf, { blockMap: true, dedup: true })
+
+  {
+    const blob = await blobs.get(id)
+    t.alike(blob, buf)
+  }
+
+  {
+    const n = await blobs.put(buf2, { blob: id, dedup: true })
+    const blob = await blobs.get(n)
+    t.alike(blob, buf2)
+  }
+
+  t.is(blobs.core.length, 5)
 })
 
 async function createPair(t) {

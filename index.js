@@ -1,8 +1,9 @@
 const mutexify = require('mutexify')
 const b4a = require('b4a')
 
-const { BlobReadStream, BlobWriteStream } = require('./lib/streams')
+const { BlockMapReadStream, BlobReadStream, BlobWriteStream } = require('./lib/streams')
 const Monitor = require('./lib/monitor')
+const blockMap = require('./lib/block-map')
 
 const DEFAULT_BLOCK_SIZE = 2 ** 16
 
@@ -153,9 +154,7 @@ class Hyperblobs {
   }
 
   async get(id, opts) {
-    const all =
-      !opts || (!opts.start && opts.length === undefined && opts.end === undefined && !opts.core)
-    if (all) return this._getAll(id, opts)
+    if (isAll(id, opts)) return this._getAll(id, opts)
 
     const res = []
     try {
@@ -172,12 +171,18 @@ class Hyperblobs {
   }
 
   async clear(id, opts) {
+    if (id.blockMap) {
+      const map = await blockMap.get(this.core, id, { wait: false })
+      if (map) {
+        for (const b of map.blocks) await this.core.clear(b.index, b.index + 1, opts)
+      }
+    }
     return this.core.clear(id.blockOffset, id.blockOffset + id.blockLength, opts)
   }
 
   createReadStream(id, opts) {
     const core = opts && opts.core ? opts.core : this.core
-    return new BlobReadStream(core, id, opts)
+    return id.blockMap ? new BlockMapReadStream(core, id, opts) : new BlobReadStream(core, id, opts)
   }
 
   createWriteStream(opts) {
@@ -225,3 +230,12 @@ class Hyperblobs {
 }
 
 module.exports = Hyperblobs
+
+function isAll(id, opts) {
+  if (id.blockMap) return false
+  if (!opts) return true
+  if (opts.start) return false
+  if (opts.length !== undefined || opts.end !== undefined) return false
+  if (opts.core) return false
+  return true
+}

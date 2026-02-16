@@ -38,6 +38,8 @@
   "dependencies": {
     "b4a": "^1.6.1",
     "bare-events": "^2.5.0",
+    "compact-encoding": "^2.18.0",
+    "hypercore-crypto": "^3.6.1",
     "hypercore-errors": "^1.1.1",
     "mutexify": "^1.4.0",
     "speedometer": "^1.1.0",
