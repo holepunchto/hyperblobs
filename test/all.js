@@ -447,6 +447,11 @@ test('basic block map', async (t) => {
       const blob = await blobs.get(id, { start: 60000, length: 10000 })
       t.alike(blob, buf.subarray(60000, 70000))
     }
+
+    {
+      const blob = await blobs.get(id, { start: 1, end: buf.byteLength - 2 })
+      t.alike(blob, buf.subarray(1, buf.byteLength - 1))
+    }
   }
 })
 
