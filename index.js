@@ -170,6 +170,10 @@ class Hyperblobs {
     return b4a.concat(res)
   }
 
+  getBlockMap(id) {
+    return id.blockMap ? blockMap.get(this.core, id) : null
+  }
+
   async clear(id, opts) {
     if (id.blockMap) {
       const map = await blockMap.get(this.core, id, { wait: false })
