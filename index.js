@@ -175,7 +175,7 @@ class Hyperblobs {
   }
 
   async getByteLength(id) {
-    if (!id.blockMap) return id.byteLength
+    if (!id.blockMap || id.byteLength === 0) return id.byteLength
     const map = await this.getBlockMap(id)
     let size = 0
     for (const b of map.blocks) size += b.byteLength
