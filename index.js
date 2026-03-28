@@ -174,6 +174,14 @@ class Hyperblobs {
     return id.blockMap ? blockMap.get(this.core, id) : null
   }
 
+  async getByteLength(id) {
+    if (!id.blockMap) return id.byteLength
+    const map = await this.getBlockMap(id)
+    let size = 0
+    for (const b of map.blocks) size += b.byteLength
+    return size
+  }
+
   async clear(id, opts) {
     if (id.blockMap) {
       const map = await blockMap.get(this.core, id, { wait: false })
