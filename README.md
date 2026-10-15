@@ -96,6 +96,18 @@ Create a Writable stream that will save a blob.
 
 The corresponding ID will be set on the stream at `stream.id`.
 
+#### `const session = blobs.session(opts)`
+
+Create a new Hyperblobs instance backed by a session of the underlying core.
+
+`opts` are the same as `Hypercore.session` method. Close the session with `session.close()` when done.
+
+#### `const snapshot = blobs.snapshot(opts)`
+
+Create a new Hyperblobs instance backed by a snapshot of the underlying core.
+
+`opts` are the same as `Hypercore.snapshot` method. Close the snapshot with `snapshot.close()` when done.
+
 ## License
 
 Apache-2.0

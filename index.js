@@ -118,8 +118,12 @@ class Hyperblobs {
     return new HyperBlobsBatch(this)
   }
 
-  snapshot() {
-    return new Hyperblobs(this.core.snapshot())
+  snapshot(opts) {
+    return new Hyperblobs(this.core.snapshot(opts), { blockSize: this.blockSize })
+  }
+
+  session(opts) {
+    return new Hyperblobs(this.core.session(opts), { blockSize: this.blockSize })
   }
 
   async put(blob, opts) {
