@@ -427,6 +427,42 @@ test('batch get on a non-empty core', async (t) => {
   t.alike(await blobs.get(b), b4a.from('hej verden'))
 })
 
+test('basic session', async (t) => {
+  const blobs = await create(t)
+  const session = blobs.session()
+
+  t.teardown(() => session.close(), { order: 0 })
+
+  t.is(session.blockSize, blobs.blockSize)
+  t.not(session.core, blobs.core)
+
+  const id = await session.put(b4a.from('hello world'))
+  t.alike(await session.get(id), b4a.from('hello world'))
+  t.alike(await blobs.get(id), b4a.from('hello world'))
+
+  const id2 = await blobs.put(b4a.from('hej verden'))
+  t.alike(await session.get(id2), b4a.from('hej verden'))
+
+  await session.close()
+  t.is(session.core.closed, true)
+  t.is(blobs.core.closed, false)
+})
+
+test('basic snapshot', async (t) => {
+  const blobs = await create(t)
+  const id = await blobs.put(b4a.from('hello world'))
+
+  const snapshot = blobs.snapshot()
+  t.teardown(() => snapshot.close(), { order: 0 })
+
+  t.is(snapshot.blockSize, blobs.blockSize)
+  t.alike(await snapshot.get(id), b4a.from('hello world'))
+
+  const id2 = await blobs.put(b4a.from('hej verden'))
+  await t.exception(snapshot.get(id2), /SNAPSHOT_NOT_AVAILABLE/)
+  t.alike(await blobs.get(id2), b4a.from('hej verden'))
+})
+
 test('basic block map', async (t) => {
   const blobs = await create(t)
 
