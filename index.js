@@ -52,7 +52,7 @@ class HyperBlobsBatch {
 
     for (
       let i = id.blockOffset - this.blobs.core.length;
-      i < id.blockOffset + id.blockLength;
+      i < id.blockOffset - this.blobs.core.length + id.blockLength;
       i++
     ) {
       if (i >= this.blocks.length) return null

@@ -409,6 +409,24 @@ test('basic batch', async (t) => {
   await batch.flush()
 })
 
+test('batch get on a non-empty core', async (t) => {
+  const blobs = await create(t)
+  await blobs.put(b4a.from('existing'))
+
+  const batch = blobs.batch()
+
+  const a = await batch.put(b4a.from('hello world'))
+  const b = await batch.put(b4a.from('hej verden'))
+
+  t.alike(await batch.get(a), b4a.from('hello world'))
+  t.alike(await batch.get(b), b4a.from('hej verden'))
+
+  await batch.flush()
+
+  t.alike(await blobs.get(a), b4a.from('hello world'))
+  t.alike(await blobs.get(b), b4a.from('hej verden'))
+})
+
 test('basic session', async (t) => {
   const blobs = await create(t)
   const session = blobs.session()
