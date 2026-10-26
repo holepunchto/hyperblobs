@@ -409,6 +409,19 @@ test('basic batch', async (t) => {
   await batch.flush()
 })
 
+test('batch put with string', async (t) => {
+  const blobs = await create(t)
+  const batch = blobs.batch()
+
+  const id = await batch.put('hello')
+  t.is(id.blockLength, 1)
+  t.is(id.byteLength, 5)
+
+  await batch.flush()
+
+  t.alike(await blobs.get(id), b4a.from('hello'))
+})
+
 test('basic session', async (t) => {
   const blobs = await create(t)
   const session = blobs.session()

@@ -19,6 +19,7 @@ class HyperBlobsBatch {
   }
 
   async put(buffer) {
+    if (!b4a.isBuffer(buffer)) buffer = b4a.from(buffer)
     if (!this.blobs.core.opened) await this.blobs.core.ready()
 
     const blockSize = this.blobs.blockSize
