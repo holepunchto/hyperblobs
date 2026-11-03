@@ -532,3 +532,37 @@ function replicate(a, b) {
   s1.pipe(s2).pipe(s1)
   return [s1, s2]
 }
+
+test('read stream ranges across many blocks', async (t) => {
+  const blobs = await create(t)
+
+  const buf = b4a.alloc(400)
+  for (let i = 0; i < buf.byteLength; i++) buf[i] = i & 0xff
+
+  const blockSize = 8
+  const before = await blobs.put(b4a.alloc(24, 'a'), { blockSize })
+  const id = await blobs.put(buf, { blockSize })
+  const after = await blobs.put(b4a.alloc(24, 'b'), { blockSize })
+
+  t.alike(await read(before), b4a.alloc(24, 'a'))
+  t.alike(await read(after), b4a.alloc(24, 'b'))
+  t.alike(await read(id), buf)
+
+  for (const [start, end] of [
+    [0, 7],
+    [0, 8],
+    [3, 200],
+    [8, 199],
+    [8, 399],
+    [130, 131],
+    [391, 399]
+  ]) {
+    t.alike(await read(id, { start, end }), buf.subarray(start, end + 1), `${start}-${end}`)
+  }
+
+  async function read(id, opts) {
+    const bufs = []
+    for await (const b of blobs.createReadStream(id, opts)) bufs.push(b)
+    return b4a.concat(bufs)
+  }
+})
